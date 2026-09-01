@@ -5,6 +5,7 @@ class Player {
 
         this.gold = 1000;
 
+        //this will need to be updated to support a larger resource pool
         this.inventory = {
             wood: 0,
             iron: 0,
@@ -27,7 +28,7 @@ class Player {
 
     getAvailableResource (resource) {
         return (
-            this.inventory(resource) - this.reservedInventory(resource)
+            this.inventory[resource] - this.reservedInventory[resource]
         )
     }
 

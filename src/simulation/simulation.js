@@ -28,6 +28,10 @@ class Simulation {
         }
     }
 
+    /**
+     * Iterates the day counter and processes each player's activities
+     * by profession, then runs a market session for trading
+     */
     runDay() {
         this.day++;
 
