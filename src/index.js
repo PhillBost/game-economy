@@ -27,11 +27,11 @@ market.placeBuyOrder(
     25
 );
 
-// Seller offers 10 iron at 20g
+// Seller offers 5 iron at 20g
 market.placeSellOrder(
     seller.id,
     "iron",
-    10,
+    5,
     20
 );
 

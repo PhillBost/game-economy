@@ -1,3 +1,4 @@
+const Order = require("./Order");
 /**
  *  A Market object with arrays of `players` buy orders, sell
  * orders, and finished transactions.
@@ -35,15 +36,14 @@ class Market {
             throw new Error("Insufficient available gold.");
         }
 
-        const order = {
-            id: this.nextOrderId++,
+        const order = new Order(
+            this.nextOrderId++,
             playerId,
-            type: "buy",
+            "buy",
             resource,
             quantity,
             price,
-            status: "open"
-        };
+        );
 
         this.buyOrders.push(order);
 
@@ -69,15 +69,14 @@ class Market {
             );
         }
 
-        const order = {
-            id: this.nextOrderId++,
+        const order = new Order(
+            this.nextOrderId++,
             playerId,
-            type: "sell",
+            "sell",
             resource,
             quantity,
-            price,
-            status: "open"
-        };
+            price
+        );
 
         this.sellOrders.push(order);
 
@@ -121,7 +120,7 @@ class Market {
         const buyer = this.getPlayer(buyOrder.playerId);
         const seller = this.getPlayer(sellOrder.playerId);
 
-        const quantity = Math.min(buyOrder.quantity, sellOrder.quantity);
+        const quantity = Math.min(buyOrder.remainingQuantity, sellOrder.remainingQuantity);
 
         const price = sellOrder.price;
         const totalCost = quantity * price;
@@ -132,19 +131,15 @@ class Market {
         buyer.gold -= totalCost;
         seller.gold += totalCost;
 
-        buyer.reservedGold -= totalCost;
+        const reservedForTrade = quantity * buyOrder.price;
+
+
+        buyer.gold -= totalCost;
+        buyer.releaseGold(reservedForTrade);
         seller.reservedInventory[sellOrder.resource] -= quantity;
 
-        buyOrder.quantity -= quantity;
-        sellOrder.quantity -= quantity;
-
-        if (buyOrder.quantity === 0) {
-            buyOrder.status = "filled";
-        }
-
-        if(sellOrder.quantity === 0) {
-            sellOrder.status = "filled";
-        }
+        buyOrder.fill(quantity);
+        sellOrder.fill(quantity);
 
         this.transactions.push({
             buyerId: buyer.id,
@@ -161,7 +156,7 @@ class Market {
 
         if (order.type === "buy") {
             const remainingReserved =
-                order.quantity * order.price;
+                order.remainingQuantity * order.price;
 
             player.releaseGold(remainingReserved);
         }
@@ -169,11 +164,29 @@ class Market {
         if (order.type === "sell") {
             player.releaseResource(
                 order.resource,
-                order.quantity
+                order.remainingQuantity
             );
         }
 
         order.status = "closed";
+    }
+
+    cancelOrder(order) {
+        const player = this.getPlayer(order.playerId);
+
+        if (order.type === "buy") {
+            const returnedGold = order.remainingQuantity * order.price;
+            player.releaseGold(returnedGold)
+        }
+
+        if (order.type === "sell") {
+            player.releaseResource(
+                order.resource, 
+                order.remainingQuantity
+            );
+        }
+        
+        order.cancel();
     }
 }
 
