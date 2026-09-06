@@ -131,13 +131,18 @@ class Market {
         buyer.gold -= totalCost;
         seller.gold += totalCost;
 
+        // buyer's reserved gold is released
         const reservedForTrade = quantity * buyOrder.price;
-
-
         buyer.gold -= totalCost;
         buyer.releaseGold(reservedForTrade);
-        seller.reservedInventory[sellOrder.resource] -= quantity;
 
+        // seller's reserved inventory is released
+        seller.releaseResource(
+            sellOrder.resource,
+            quantity
+        );
+
+        // update orders
         buyOrder.fill(quantity);
         sellOrder.fill(quantity);
 
