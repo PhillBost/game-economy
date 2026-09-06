@@ -1,66 +1,154 @@
+import { describe, it, expect } from "vitest";
 const Order = require("../src/market/Order");
 
-/** Partially Filled Order */
-const order = new Order(
-    1,
-    1,
-    "buy",
-    "iron",
-    10,
-    25
-)
+describe("Order", () => {
 
-order.fill(4);
+describe("fill()", () => {
 
-if (order.remainingQuantity !== 6) {
-    throw new Error("Expected 6 units remaining.");
-}
+    it("should partially fill an order", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
 
-if (order.status !== "open") {
-    throw new Error("Expected order to remain open after partial fill.");
-}
+        // Act
+        order.fill(4);
 
-console.log("✓ Partial fill test passed");
+        // Assert
+        expect(order.remainingQuantity).toBe(6);
+        expect(order.status).toBe("open");
+    });
 
-/** Completed Order */
-const completedOrder = new Order(
-    2,
-    1,
-    "buy",
-    "iron",
-    10,
-    25
-);
 
-completedOrder.fill(10);
+    it("should completely fill an order", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
 
-if (completedOrder.remainingQuantity !== 0) {
-    throw new Error("Expected 0 units remaining.");
-}
+        // Act
+        order.fill(10);
 
-if (completedOrder.status !== "filled") {
-    throw new Error("Expected order to be filled.");
-}
+        // Assert
+        expect(order.remainingQuantity).toBe(0);
+        expect(order.status).toBe("filled");
+    });
 
-console.log("✓ Complete fill test passed");
 
-/** Invalid Order */
-const invalidOrder = new Order(
-    3,
-    1,
-    "buy",
-    "iron",
-    10,
-    25
-);
+    it("should not allow a fill greater than the remaining quantity", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
 
-try {
-    invalidOrder.fill(11);
-    throw new Error("Expected fill to throw an error.");
-} catch (error) {
-    if (error.message !== "Cannot fill more than the remaining quantity.") {
-        throw error;
-    }
-}
+        // Act & Assert
+        expect(() => {
+            order.fill(11);
+        }).toThrow(
+            "Cannot fill more than the remaining quantity."
+        );
+    });
 
-console.log("✓ Invalid fill test passed");
+
+    it("should not allow a fill of zero", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
+
+        // Act & Assert
+        expect(() => {
+            order.fill(0);
+        }).toThrow(
+            "Fill quantity must be greater than zero."
+        );
+    });
+
+
+    it("should not allow a negative fill", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
+
+        // Act & Assert
+        expect(() => {
+            order.fill(-5);
+        }).toThrow(
+            "Fill quantity must be greater than zero."
+        );
+    });
+
+});
+
+
+describe("cancel()", () => {
+
+    it("should cancel an open order", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
+
+        // Act
+        order.cancel();
+
+        // Assert
+        expect(order.status).toBe("cancelled");
+    });
+
+
+    it("should not allow a filled order to be cancelled", () => {
+        // Arrange
+        const order = new Order(
+            1,
+            1,
+            "buy",
+            "iron",
+            10,
+            25
+        );
+
+        order.fill(10);
+
+        // Act & Assert
+        expect(() => {
+            order.cancel();
+        }).toThrow(
+            "Only open orders can be cancelled."
+        );
+    });
+
+});
+
+});

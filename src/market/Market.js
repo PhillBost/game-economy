@@ -133,7 +133,6 @@ class Market {
 
         // buyer's reserved gold is released
         const reservedForTrade = quantity * buyOrder.price;
-        buyer.gold -= totalCost;
         buyer.releaseGold(reservedForTrade);
 
         // seller's reserved inventory is released

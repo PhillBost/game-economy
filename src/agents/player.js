@@ -42,7 +42,7 @@ class Player {
     }
 
     releaseGold(amount) {
-        this.reservedgold -= amount;
+        this.reservedGold -= amount;
     }
 
     reserveResource(resource, amount) {

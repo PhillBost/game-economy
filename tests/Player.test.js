@@ -1,33 +1,107 @@
-/** Player Reserve Gold */
+import { describe, it, expect } from "vitest";
 const Player = require("../src/agents/Player");
 
-const player = new Player(1, "miner");
+describe("Player", () => {
 
-player.reserveGold(250);
+describe("Gold", () => {
 
-if (player.gold !== 1000) {
-    throw new Error("Total gold should remain 1000.");
-}
+    it("should reserve available gold", () => {
+        // Arrange
+        const player = new Player(1, "miner");
 
-if (player.reservedGold !== 250) {
-    throw new Error("Expected 250 gold to be reserved.");
-}
+        // Act
+        const result = player.reserveGold(250);
 
-if (player.getAvailableGold() !== 750) {
-    throw new Error("Expected 750 gold to be available.");
-}
+        // Assert
+        expect(result).toBe(true);
+        expect(player.gold).toBe(1000);
+        expect(player.reservedGold).toBe(250);
+        expect(player.getAvailableGold()).toBe(750);
+    });
 
-console.log("✓ Gold reservation test passed");
 
-/** Player Release Gold */
-player.releaseGold(100);
+    it("should not reserve more gold than is available", () => {
+        // Arrange
+        const player = new Player(1, "miner");
 
-if (player.reservedGold !== 150) {
-    throw new Error("Expected 150 gold to remain reserved.");
-}
+        // Act
+        const result = player.reserveGold(1001);
 
-if (player.getAvailableGold() !== 850) {
-    throw new Error("Expected 850 gold to be available.");
-}
+        // Assert
+        expect(result).toBe(false);
+        expect(player.reservedGold).toBe(0);
+        expect(player.getAvailableGold()).toBe(1000);
+    });
 
-console.log("✓ Gold release test passed");
+
+    it("should release reserved gold", () => {
+        // Arrange
+        const player = new Player(1, "miner");
+
+        player.reserveGold(250);
+
+        // Act
+        player.releaseGold(100);
+
+        // Assert
+        expect(player.reservedGold).toBe(150);
+        expect(player.getAvailableGold()).toBe(850);
+    });
+
+});
+
+
+describe("Resources", () => {
+
+    it("should reserve available resources", () => {
+        // Arrange
+        const player = new Player(1, "miner");
+
+        player.inventory.iron = 20;
+
+        // Act
+        const result = player.reserveResource("iron", 5);
+
+        // Assert
+        expect(result).toBe(true);
+        expect(player.inventory.iron).toBe(20);
+        expect(player.reservedInventory.iron).toBe(5);
+        expect(player.getAvailableResource("iron")).toBe(15);
+    });
+
+
+    it("should not reserve more resources than are available", () => {
+        // Arrange
+        const player = new Player(1, "miner");
+
+        player.inventory.iron = 20;
+
+        // Act
+        const result = player.reserveResource("iron", 25);
+
+        // Assert
+        expect(result).toBe(false);
+        expect(player.reservedInventory.iron).toBe(0);
+        expect(player.getAvailableResource("iron")).toBe(20);
+    });
+
+
+    it("should release reserved resources", () => {
+        // Arrange
+        const player = new Player(1, "miner");
+
+        player.inventory.iron = 20;
+        player.reserveResource("iron", 10);
+
+        // Act
+        player.releaseResource("iron", 5);
+
+        // Assert
+        expect(player.reservedInventory.iron).toBe(5);
+        expect(player.getAvailableResource("iron")).toBe(15);
+    });
+
+});
+
+
+});

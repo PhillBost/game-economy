@@ -1,74 +1,57 @@
+import { describe, it, expect} from "vitest";
 const Market = require("../src/market/Market");
-const Player = require("../src/agents/Player")
+const Player = require("../src/agents/Player");
 
-const players = [
-    new Player(1, "miner"),
-    new Player(2, "farmer")
-];
-
-const buyer = players[0];
-const seller = players[1];
-
-// Give seller some iron
-seller.inventory.iron = 20;
-
-const market = new Market(players);
-
-console.log("BEFORE");
-
-console.log("Buyer:", buyer);
-console.log("Seller:", seller);
-
-// Buyer wants 10 iron at 25g
-market.placeBuyOrder(
-    buyer.id,
-    "iron",
-    10,
-    25
-);
-
-// Seller offers 5 iron at 20g
-market.placeSellOrder(
-    seller.id,
-    "iron",
-    5,
-    20
-);
-
-console.log("\nORDERS");
-
-console.log(market.buyOrders);
-console.log(market.sellOrders);
-
-// Match them
-market.matchOrders();
-
-console.log("\nAFTER");
-
-console.log("Buyer:", buyer);
-console.log("Seller:", seller);
-
-console.log("\nTRANSACTIONS");
-
-console.log(market.transactions);
+describe("Market", () => {
+    it("should partially fill a buy order", () => {
 
 
-if (buyer.gold !== 900) {
-    throw new Error("Buyer should have 900 gold.");
-}
+        const players = [
+            new Player(1, "miner"),
+            new Player(2, "farmer")
+        ];
 
-if (buyer.inventory.iron !== 5) {
-    throw new Error("Buyer should have received 5 iron.");
-}
+        const buyer = players[0];
+        const seller = players[1];
 
-if (buyer.reservedGold !== 125) {
-    throw new Error("Buyer should have 125 gold reserved.");
-}
+        // Give seller some iron
+        seller.inventory.iron = 20;
 
-if (seller.gold !== 1100) {
-    throw new Error("Seller should have 1100 gold.");
-}
+        const market = new Market(players);
 
-if (seller.inventory.iron !== 15) {
-    throw new Error("Seller should have 15 iron.");
-}
+
+        // Buyer wants 10 iron at 25g
+        const buyOrder = market.placeBuyOrder(
+            buyer.id,
+            "iron",
+            10,
+            25
+        );
+
+        // Seller offers 5 iron at 20g
+        const sellOrder = market.placeSellOrder(
+            seller.id,
+            "iron",
+            5,
+            20
+        );
+
+        market.matchOrders();
+
+        // Assert
+        expect(buyer.gold).toBe(900);
+        expect(buyer.inventory.iron).toBe(5);
+        expect(buyer.reservedGold).toBe(125);
+
+        expect(seller.gold).toBe(1100);
+        expect(seller.inventory.iron).toBe(15);
+
+        expect(buyOrder.remainingQuantity).toBe(5);
+        expect(buyOrder.status).toBe("open");
+
+        expect(sellOrder.remainingQuantity).toBe(0);
+        expect(sellOrder.status).toBe("filled");
+
+        expect(market.transactions).toHaveLength(1);
+    });
+});

@@ -52,7 +52,7 @@ class Order {
     cancel() {
         if (this.status !== "open") {
             throw new Error(
-                "Only open orders can be canceled"
+                "Only open orders can be cancelled."
             );
         }
 
