@@ -1,4 +1,4 @@
-const Player = require("./agents/Player");
+const Player = require("./agents/player");
 const Market = require("./market/Market");
 
 const players = [

@@ -19,6 +19,7 @@ class Player {
             wheat: 0
         };
 
+        this.producerBehaviors = [];
 
     }
 
