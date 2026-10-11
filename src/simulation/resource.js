@@ -11,6 +11,10 @@ const resources = {
     wheat: { 
         name: "Wheat",
         baseValue: 5
+    },
+    shovel: {
+        name: "Shovel",
+        baseValue: 30
     }
 };
 

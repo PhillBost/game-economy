@@ -43,21 +43,24 @@ class ProducerBehavior {
             order.playerId !== player.id
         )
 
-        if (buyOrders.length === 0) {
-            return null;
-        }
-        
-       const bestBuyOrder = buyOrders.reduce((best, order) =>{
-            return best.price > order.price ? order : best;
-       });
+        const bestBuyOrder = buyOrders.reduce((best, order) => {
+            if (best === null || order.price > best.price) {
+                return order;
+            }
+            return best;
+        }, null);
          
        return {
             type: "sell",
             resource: this.resource,
             quantity: quantity,
-            price: bestBuyOrder.price
+            price: bestBuyOrder ? bestBuyOrder.price : resources[this.resource].baseValue
        }
     
     }
 
 }
+
+module.exports = ProducerBehavior;
+const resources = require("../../simulation/resource");
+

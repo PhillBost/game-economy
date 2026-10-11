@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node src/simulation/run.js",
     "test": "vitest"
   },
   "keywords": [],

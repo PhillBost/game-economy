@@ -93,25 +93,33 @@ class Market {
      * sorted. Once a transaction is not possible, we can confidently stop matching.
      */
     matchOrders() {
-        while (
-            this.buyOrders.length > 0 &&
-            this.sellOrders.length > 0
-        ) {
-            const buyOrder = this.buyOrders[0];
-            const sellOrder = this.sellOrders[0];
+        while (this.buyOrders.length > 0 && this.sellOrders.length > 0) {
+            let matchingPair = null;
 
-            if (buyOrder.price < sellOrder.price) {
-                break;
+            for (const buyOrder of this.buyOrders) {
+                const sellOrder = this.sellOrders.find(order =>
+                    order.resource === buyOrder.resource &&
+                    order.price <= buyOrder.price &&
+                    order.playerId !== buyOrder.playerId
+                );
+                if (sellOrder) {
+                    matchingPair = { buyOrder, sellOrder };
+                    break;
+                }
             }
+
+            if (!matchingPair) break;
+
+            const { buyOrder, sellOrder } = matchingPair;
 
             this.executeTrade(buyOrder, sellOrder);
 
             if (buyOrder.status === "filled") {
-                this.buyOrders.shift();
+                this.buyOrders = this.buyOrders.filter(order => order !== buyOrder);
             }
 
             if (sellOrder.status === "filled") {
-                this.sellOrders.shift();
+                this.sellOrders = this.sellOrders.filter(order => order !== sellOrder);
             }
         }
     }
