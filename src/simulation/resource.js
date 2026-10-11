@@ -8,7 +8,7 @@ const resources = {
         name: "Iron",
         baseValue: 20
     },
-    wheat: {
+    wheat: { 
         name: "Wheat",
         baseValue: 5
     }
