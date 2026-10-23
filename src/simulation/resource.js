@@ -14,7 +14,7 @@ const resources = {
     },
     shovel: {
         name: "Shovel",
-        baseValue: 30
+        baseValue: 40
     }
 };
 

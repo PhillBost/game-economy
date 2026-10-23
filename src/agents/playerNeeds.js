@@ -18,5 +18,12 @@ module.exports = {
     },
     dailyConsumption: {
         wood: 1
+    },
+    
+    // Completed recipes per game day. Fractional rates accumulate over days.
+    craftingRates: {
+        smith: {
+            shovel: 1
+        }
     }
 };

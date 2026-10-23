@@ -44,6 +44,7 @@ class Simulation {
         this.day++;
 
         const production = [];
+        const crafting = [];
         const consumption = [];
         const transactionStart = this.market.transactions.length;
 
@@ -58,6 +59,12 @@ class Simulation {
                 resource: professions[player.gatheringProfession].gathers,
                 quantity: this.processPlayer(player)
             });
+            const craftingResult = player.craftDaily();
+            crafting.push(...craftingResult.map(result => ({
+                playerId: player.id,
+                profession: player.craftingProfession,
+                ...result
+            })));
         }
 
         for (const player of this.players) {
@@ -73,6 +80,7 @@ class Simulation {
         const summary = {
             day: this.day,
             production,
+            crafting,
             consumption,
             transactions: this.market.transactions.slice(transactionStart)
         };
@@ -86,6 +94,14 @@ class Simulation {
             console.log(
                 `Player ${entry.playerId} (${entry.profession}) produced ${entry.quantity} ${entry.resource}.`
             );
+        }
+
+        for (const entry of summary.crafting) {
+            if (entry.quantity > 0) {
+                const used = Object.entries(entry.inputs)
+                    .map(([resource, quantity]) => `${quantity} ${resource}`).join(", ");
+                console.log(`Player ${entry.playerId} (${entry.profession}) crafted ${entry.quantity} ${entry.resource} using ${used}.`);
+            }
         }
 
         for (const entry of summary.consumption) {

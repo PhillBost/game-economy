@@ -13,8 +13,9 @@ class Player {
         this.gatheringProfession = gatheringProfession;
         this.craftingProfession = craftingProfession;
         this.profession = gatheringProfession;
+        this.craftingProgress = {};
 
-        this.gold = 1000;
+        this.gold = 100;
 
         //this will need to be updated to support a larger resource pool
         this.inventory = {
@@ -78,7 +79,42 @@ class Player {
             this.inventory[resource] = (this.inventory[resource] || 0) - used;
             consumed[resource] = used;
         }
-        return consumed;
+        return consumed; 
+    }
+
+    /** Craft each configured recipe at its own rate. Partial daily rates accumulate. */
+    craftDaily() {
+        const recipes = professions[this.craftingProfession]?.recipes || [];
+        const rates = playerNeeds.craftingRates[this.craftingProfession] || {};
+        const crafted = [];
+
+        for (const recipe of recipes) {
+            const rate = rates[recipe.id] ?? 0;
+            if (!Number.isFinite(rate) || rate < 0) {
+                throw new Error(`Crafting rate for ${this.craftingProfession}.${recipe.id} must be non-negative.`);
+            }
+            this.craftingProgress[recipe.id] = (this.craftingProgress[recipe.id] || 0) + rate;
+
+            /** Add crafting progress daily as rate, then consume crafted items into inventory */
+            let quantity = 0;
+            const inputs = {};
+            while (this.craftingProgress[recipe.id] >= 1 && Object.entries(recipe.inputs).every(
+                ([resource, amount]) => this.getAvailableResource(resource) >= amount
+            )) {
+                for (const [resource, amount] of Object.entries(recipe.inputs)) {
+                    this.inventory[resource] -= amount;
+                    inputs[resource] = (inputs[resource] || 0) + amount;
+                }
+                quantity += recipe.output.quantity;
+                this.craftingProgress[recipe.id] -= 1;
+            }
+
+            this.inventory[recipe.output.resource] =
+                (this.inventory[recipe.output.resource] || 0) + quantity;
+            crafted.push({ recipe: recipe.id, resource: recipe.output.resource, quantity, inputs });
+        }
+
+        return crafted;
     }
 
     /** Ask each buyer behavior for a proposal and place any resulting orders. */

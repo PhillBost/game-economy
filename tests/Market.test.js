@@ -13,6 +13,8 @@ describe("Market", () => {
 
         const buyer = players[0];
         const seller = players[1];
+        buyer.gold = 500;
+        seller.gold = 200;
 
         // Give seller some iron
         seller.inventory.iron = 20;
@@ -39,11 +41,11 @@ describe("Market", () => {
         market.matchOrders();
 
         // Assert
-        expect(buyer.gold).toBe(900);
+        expect(buyer.gold).toBe(400);
         expect(buyer.inventory.iron).toBe(5);
         expect(buyer.reservedGold).toBe(125);
 
-        expect(seller.gold).toBe(1100);
+        expect(seller.gold).toBe(300);
         expect(seller.inventory.iron).toBe(15);
 
         expect(buyOrder.remainingQuantity).toBe(5);

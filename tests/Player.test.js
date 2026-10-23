@@ -8,35 +8,38 @@ describe("Gold", () => {
     it("should reserve available gold", () => {
         // Arrange
         const player = new Player(1, "miner");
+        player.gold = 300;
 
         // Act
         const result = player.reserveGold(250);
 
         // Assert
         expect(result).toBe(true);
-        expect(player.gold).toBe(1000);
+        expect(player.gold).toBe(300);
         expect(player.reservedGold).toBe(250);
-        expect(player.getAvailableGold()).toBe(750);
+        expect(player.getAvailableGold()).toBe(50);
     });
 
 
     it("should not reserve more gold than is available", () => {
         // Arrange
         const player = new Player(1, "miner");
+        player.gold = 300;
 
         // Act
-        const result = player.reserveGold(1001);
+        const result = player.reserveGold(301);
 
         // Assert
         expect(result).toBe(false);
         expect(player.reservedGold).toBe(0);
-        expect(player.getAvailableGold()).toBe(1000);
+        expect(player.getAvailableGold()).toBe(300);
     });
 
 
     it("should release reserved gold", () => {
         // Arrange
         const player = new Player(1, "miner");
+        player.gold = 300;
 
         player.reserveGold(250);
 
@@ -45,7 +48,7 @@ describe("Gold", () => {
 
         // Assert
         expect(player.reservedGold).toBe(150);
-        expect(player.getAvailableGold()).toBe(850);
+        expect(player.getAvailableGold()).toBe(150);
     });
 
 });
