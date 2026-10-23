@@ -54,13 +54,14 @@ class ProducerBehavior {
             type: "sell",
             resource: this.resource,
             quantity: quantity,
-            price: bestBuyOrder ? bestBuyOrder.price : resources[this.resource].baseValue
+            price: bestBuyOrder ? bestBuyOrder.price : economy.resources[this.resource].baseValue
        }
     
     }
 
 }
 
-module.exports = ProducerBehavior;
-const resources = require("../../simulation/resource");
+import { economy } from "../../economy.js";
+
+export default ProducerBehavior;
 

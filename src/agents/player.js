@@ -1,12 +1,15 @@
-const professions = require("./professions");
-const ProducerBehavior = require("./behaviors/ProducerBehavior");
-const BuyerBehavior = require("./behaviors/BuyerBehavior");
-const playerNeeds = require("./playerNeeds");
+import { economy } from "../economy.js";
+import ProducerBehavior from "./behaviors/ProducerBehavior.js";
+import BuyerBehavior from "./behaviors/BuyerBehavior.js";
 
 class Player {
     constructor(id, gatheringProfession, craftingProfession = "none") {
-        if (!professions[gatheringProfession]) {
+        if (economy.occupations[gatheringProfession]?.type !== "gathering") {
             throw new Error(`Unknown gathering profession: ${gatheringProfession}`);
+        }
+        if (craftingProfession !== "none" &&
+            economy.occupations[craftingProfession]?.type !== "crafting") {
+            throw new Error(`Unknown crafting profession: ${craftingProfession}`);
         }
 
         this.id = id;
@@ -15,23 +18,16 @@ class Player {
         this.profession = gatheringProfession;
         this.craftingProgress = {};
 
-        this.gold = 100;
+        this.gold = economy.player.startingGold;
 
-        //this will need to be updated to support a larger resource pool
-        this.inventory = {
-            wood: 0,
-            iron: 0,
-            wheat: 0,
-            shovel: 0
-        };
+        this.inventory = Object.fromEntries(
+            Object.keys(economy.resources).map(resource => [resource, 0])
+        );
 
         this.reservedGold = 0;
-        this.reservedInventory = {
-            wood: 0,
-            iron: 0,
-            wheat: 0,
-            shovel: 0
-        };
+        this.reservedInventory = Object.fromEntries(
+            Object.keys(economy.resources).map(resource => [resource, 0])
+        );
 
         const targets = this.getInventoryTargets();
         this.producerBehaviors = Object.entries(targets)
@@ -42,10 +38,13 @@ class Player {
     }
 
     /** Produce a random amount of the resource allowed by this player's profession. */
-    produce(resource, minAmount = 1, maxAmount = 10) {
-        if (resource !== professions[this.gatheringProfession].gathers) {
+    produce(resource, minAmount, maxAmount) {
+        const occupation = economy.occupations[this.gatheringProfession];
+        if (resource !== occupation.gathers) {
             throw new Error(`${this.gatheringProfession} cannot produce ${resource}.`);
         }
+        minAmount ??= occupation.productionRange.min;
+        maxAmount ??= occupation.productionRange.max;
         if (!Number.isInteger(minAmount) || !Number.isInteger(maxAmount) ||
             minAmount < 0 || maxAmount < minAmount) {
             throw new Error("Production range must be non-negative integers with maxAmount >= minAmount.");
@@ -65,16 +64,14 @@ class Player {
     }
 
     getInventoryTargets() {
-        const targets = { ...playerNeeds.inventoryTargets.allPlayers };
-        const overrides = playerNeeds.inventoryTargets.craftingProfession[
-            this.craftingProfession
-        ] || {};
+        const targets = { ...economy.player.inventoryTargets };
+        const overrides = economy.occupations[this.craftingProfession]?.inventoryTargets || {};
         return { ...targets, ...overrides };
     }
 
     consumeDailyResources() {
         const consumed = {};
-        for (const [resource, amount] of Object.entries(playerNeeds.dailyConsumption)) {
+        for (const [resource, amount] of Object.entries(economy.player.dailyConsumption)) {
             const used = Math.min(this.inventory[resource] || 0, amount);
             this.inventory[resource] = (this.inventory[resource] || 0) - used;
             consumed[resource] = used;
@@ -84,12 +81,11 @@ class Player {
 
     /** Craft each configured recipe at its own rate. Partial daily rates accumulate. */
     craftDaily() {
-        const recipes = professions[this.craftingProfession]?.recipes || [];
-        const rates = playerNeeds.craftingRates[this.craftingProfession] || {};
+        const recipes = economy.occupations[this.craftingProfession]?.recipes || [];
         const crafted = [];
 
         for (const recipe of recipes) {
-            const rate = rates[recipe.id] ?? 0;
+            const rate = recipe.ratePerDay;
             if (!Number.isFinite(rate) || rate < 0) {
                 throw new Error(`Crafting rate for ${this.craftingProfession}.${recipe.id} must be non-negative.`);
             }
@@ -188,4 +184,4 @@ class Player {
     }
 }
 
-module.exports = Player;
+export default Player;

@@ -1,22 +1,4 @@
-const professions = {
-    miner: {
-        gathers: "iron"
-    },
-    farmer: {
-        gathers: "wheat"
-    },
-    lumberjack: {
-        gathers: "wood"
-    },
-    smith: {
-        recipes: [
-            {
-                id: "shovel",
-                inputs: { iron: 1, wood: 2},
-                output: { resource: "shovel", quantity: 1 }
-            }
-        ]
-    }
-};
+// Compatibility export; occupation definitions live in economy.js.
+import { economy } from "../economy.js";
 
-module.exports = professions;
+export default economy.occupations;

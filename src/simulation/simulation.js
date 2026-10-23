@@ -1,6 +1,6 @@
-const Player = require("../agents/Player");
-const Market = require("../market/Market");
-const professions = require("../agents/professions");
+import Player from "../agents/player.js";
+import Market from "../market/Market.js";
+import { economy } from "../economy.js";
 
 class Simulation {
 
@@ -19,8 +19,12 @@ class Simulation {
      * @param {*} playerCount number of players initialized
      */
     createPlayers(playerCount) {
-        const gatheringProfessions = ["miner", "lumberjack", "farmer"];
-        const craftingProfessions = ["none", "smith"];
+        const gatheringProfessions = Object.entries(economy.occupations)
+            .filter(([, occupation]) => occupation.type === "gathering")
+            .map(([name]) => name);
+        const craftingProfessions = ["none", ...Object.entries(economy.occupations)
+            .filter(([, occupation]) => occupation.type === "crafting")
+            .map(([name]) => name)];
 
         for (let i = 0; i < playerCount; i++) {
             const gatheringProfession = gatheringProfessions[
@@ -40,7 +44,7 @@ class Simulation {
      * Iterates the day counter and processes each player's activities
      * by profession, then runs a market session for trading
      */
-    runDay() {
+    runDay({ log = true } = {}) {
         this.day++;
 
         const production = [];
@@ -56,7 +60,7 @@ class Simulation {
             production.push({
                 playerId: player.id,
                 profession: player.gatheringProfession,
-                resource: professions[player.gatheringProfession].gathers,
+                resource: economy.occupations[player.gatheringProfession].gathers,
                 quantity: this.processPlayer(player)
             });
             const craftingResult = player.craftDaily();
@@ -84,7 +88,9 @@ class Simulation {
             consumption,
             transactions: this.market.transactions.slice(transactionStart)
         };
-        this.summarizeDay(summary);
+        if (log) {
+            this.summarizeDay(summary);
+        }
         return summary;
     }
 
@@ -153,9 +159,9 @@ class Simulation {
     }
 
     processPlayer(player) {
-        const resource = professions[player.gatheringProfession].gathers;
+        const resource = economy.occupations[player.gatheringProfession].gathers;
         return player.produce(resource);
     }
 }
 
-module.exports = Simulation;
+export default Simulation;

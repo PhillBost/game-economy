@@ -1,21 +1,4 @@
+// Compatibility export; resource definitions live in economy.js.
+import { economy } from "../economy.js";
 
-const resources = {
-    wood: {
-        name: "Wood",
-        baseValue: 10
-    },
-    iron: {
-        name: "Iron",
-        baseValue: 20
-    },
-    wheat: { 
-        name: "Wheat",
-        baseValue: 5
-    },
-    shovel: {
-        name: "Shovel",
-        baseValue: 40
-    }
-};
-
-module.exports = resources;
+export default economy.resources;

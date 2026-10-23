@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-const Order = require("../src/market/Order");
+import Order from "../src/market/Order.js";
 
 describe("Order", () => {
 

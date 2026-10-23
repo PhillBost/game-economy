@@ -1,4 +1,4 @@
-const Order = require("./Order");
+import Order from "./Order.js";
 /**
  *  A Market object with arrays of `players` buy orders, sell
  * orders, and finished transactions.
@@ -204,4 +204,4 @@ class Market {
 
 
 
-module.exports = Market;
+export default Market;

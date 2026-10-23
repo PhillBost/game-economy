@@ -1,4 +1,4 @@
-const Simulation = require("./simulation");
+import Simulation from "./simulation.js";
 
 const simulation = new Simulation(5);
 

@@ -1,29 +1,26 @@
-/**
- * Editable inventory targets and daily upkeep for players.
- * Profession-specific targets replace the shared target for that resource.
- */
-module.exports = {
+// Compatibility view; player settings live in economy.js.
+import { economy } from "../economy.js";
+
+const craftingProfession = Object.fromEntries(
+    Object.entries(economy.occupations)
+        .filter(([, occupation]) => occupation.type === "crafting")
+        .map(([name, occupation]) => [name, occupation.inventoryTargets || {}])
+);
+
+const craftingRates = Object.fromEntries(
+    Object.entries(economy.occupations)
+        .filter(([, occupation]) => occupation.type === "crafting")
+        .map(([name, occupation]) => [
+            name,
+            Object.fromEntries((occupation.recipes || []).map(recipe => [recipe.id, recipe.ratePerDay]))
+        ])
+);
+
+export default {
     inventoryTargets: {
-        allPlayers: {
-            wood: 5,
-            iron: 5,
-            wheat: 5,
-            shovel: 1
-        },
-        craftingProfession: {
-            smith: {
-                iron: 10
-            }
-        }
+        allPlayers: economy.player.inventoryTargets,
+        craftingProfession
     },
-    dailyConsumption: {
-        wood: 1
-    },
-    
-    // Completed recipes per game day. Fractional rates accumulate over days.
-    craftingRates: {
-        smith: {
-            shovel: 1
-        }
-    }
+    dailyConsumption: economy.player.dailyConsumption,
+    craftingRates
 };

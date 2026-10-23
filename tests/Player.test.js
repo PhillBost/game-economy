@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-const Player = require("../src/agents/Player");
+import Player from "../src/agents/player.js";
 
 describe("Player", () => {
 

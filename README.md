@@ -6,12 +6,21 @@ Players are established, days are passed as ticks, and each day players can trad
 
 Eventually will develop into a full, visually explorable simulator where one can set parameters of an mmo/fantasy economy, including world events, rare items, etc, and watch as the market adapts!
 
-Crafting recipes are listed on crafting professions in `src/agents/professions.js`.
-For example, smiths spend 2 iron to make 1 shovel. Set each recipe's completed
-rate per game day in `src/agents/playerNeeds.js` under `craftingRates`, keyed by
-recipe ID; fractional rates accumulate (for example, `0.5` makes one recipe
-every two days). A player must have the recipe inputs available for crafting
-to proceed.
+## Economy definitions
+
+Add economy data in `src/economy.js`:
+
+- Add a resource under `resources` with its display name and base value.
+- Add an occupation under `occupations`. Gathering occupations specify a
+  resource and production range; crafting occupations specify recipes, input
+  resources, output, and `ratePerDay`.
+- Set shared inventory targets and daily player consumption under `player`.
+- Set an occupation-specific inventory target on that occupation, such as the
+  smith's iron target or the baker's wheat target.
+
+Player inventories, market behaviors, random occupation assignment, and UI
+resource labels are derived from this data. Recipes only craft when their
+inputs are available. Fractional `ratePerDay` values accumulate across days.
 
 
 Roadmap:

@@ -1,6 +1,6 @@
 import { describe, it, expect} from "vitest";
-const Market = require("../src/market/Market");
-const Player = require("../src/agents/Player");
+import Market from "../src/market/Market.js";
+import Player from "../src/agents/player.js";
 
 describe("Market", () => {
     it("should partially fill a buy order", () => {

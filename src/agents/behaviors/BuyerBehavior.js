@@ -49,4 +49,4 @@ class BuyerBehavior {
     }
 }
 
-module.exports = BuyerBehavior;
+export default BuyerBehavior;

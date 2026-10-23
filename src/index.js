@@ -1,5 +1,5 @@
-const Player = require("./agents/player");
-const Market = require("./market/Market");
+import Player from "./agents/player.js";
+import Market from "./market/Market.js";
 
 const players = [
     new Player(1, "miner"),
